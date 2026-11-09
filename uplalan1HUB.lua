@@ -736,18 +736,5 @@ if cfgGet("collectAutoStart") then task.spawn(function() task.wait(5);if not sta
 if cfgGet("autoWinEnabled") and LP.Character and LP.Character:FindFirstChild("HumanoidRootPart") then task.spawn(function() task.wait(8);if cfgGet("autoWinEnabled") then runAutoWin(true) end end) end
 if cfgGet("autoUpgradeEnabled") then task.spawn(function() task.wait(5);local r=getRemote("TowerService","FullUpgradeAllTowers");if r then pcall(function() r:InvokeServer() end) end end) end
 SetStatus(HUB_SHORT.." v10.5 GOLD loaded",C.green)
-print("["..HUB_SHORT.." v10.5 GOLD] Loaded. Device="..DEVICE.." | Chat+Live: "..(hasHttp() and "OK" or "NO HTTP").." | Speed: "..tostring(cfgGet("autoWinSpeed")))
-if cfgGet("autoUpgradeEnabled") then 
-    task.spawn(function() 
-        task.wait(5)
-        local r = getRemote("TowerService", "FullUpgradeAllTowers")
-        if r then 
-            pcall(function() r:InvokeServer() end) 
-        end 
-    end) 
-end
-
-SetStatus(HUB_SHORT.." v10.5 GOLD loaded", C.green)
 print("["..HUB_SHORT.." v10.5 GOLD] Loaded. Device="..DEVICE.." | Chat+Live: "..(hasHttp() and "OK" or "NO HTTP").." | Speed: "..tostring(cfgGet("autoWinSpeed"))))
-
 end
