@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 local PG = LP:WaitForChild("PlayerGui")
 
@@ -25,6 +26,11 @@ Card.BackgroundColor3 = Color3.fromRGB(22, 24, 36)
 Card.BorderSizePixel = 0
 Card.Parent = Frame
 Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 14)
+
+local UIScale = Instance.new("UIScale")
+local s = math.min((workspace.CurrentCamera.ViewportSize.X - 40) / 370, (workspace.CurrentCamera.ViewportSize.Y - 40) / 250)
+UIScale.Scale = math.clamp(s, 0.5, 1)
+UIScale.Parent = Card
 
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -24, 0, 42)
