@@ -737,4 +737,5 @@ if cfgGet("autoWinEnabled") and LP.Character and LP.Character:FindFirstChild("Hu
 if cfgGet("autoUpgradeEnabled") then task.spawn(function() task.wait(5);local r=getRemote("TowerService","FullUpgradeAllTowers");if r then pcall(function() r:InvokeServer() end) end end) end
 SetStatus(HUB_SHORT.." v10.5 GOLD loaded",C.green)
 print("["..HUB_SHORT.." v10.5 GOLD] Loaded. Device="..DEVICE.." | Chat+Live: "..(hasHttp() and "OK" or "NO HTTP").." | Speed: "..tostring(cfgGet("autoWinSpeed"))))
+
 end
