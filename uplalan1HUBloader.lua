@@ -1,11 +1,9 @@
 local Players = game:GetService("Players")
-local UIS = game:GetService("UserInputService")
 local LP = Players.LocalPlayer
 local PG = LP:WaitForChild("PlayerGui")
 
 local MY_HUB_URL = "https://raw.githubusercontent.com/eacUPLALAN1/uplalan1HUB/main/uplalan1HUB.lua"
 local KERT1_URL = "https://raw.githubusercontent.com/gagagaxoxlox1-eng/-New-Toilet-Verse-Tower-Defense/refs/heads/main/ToiletVerseTowerDefenseScriptKert1"
-local isMobile = UIS.TouchEnabled and not UIS.KeyboardEnabled
 
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "uplalan1_Loader"
@@ -28,11 +26,6 @@ Card.BorderSizePixel = 0
 Card.Parent = Frame
 Instance.new("UICorner", Card).CornerRadius = UDim.new(0, 14)
 
-local UIScale = Instance.new("UIScale")
-local s = math.min((workspace.CurrentCamera.ViewportSize.X - 40) / 370, (workspace.CurrentCamera.ViewportSize.Y - 40) / 250)
-UIScale.Scale = math.clamp(s, 0.5, 1)
-UIScale.Parent = Card
-
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, -24, 0, 42)
 Title.Position = UDim2.fromOffset(12, 10)
@@ -44,13 +37,15 @@ Title.TextSize = 20
 Title.Parent = Card
 
 local Info = Instance.new("TextLabel")
-Info.Size = UDim2.new(1, -24, 0, 28)
+Info.Size = UDim2.new(1, -24, 0, 50)
 Info.Position = UDim2.fromOffset(12, 51)
 Info.BackgroundTransparency = 1
 Info.Text = "Select script to launch"
 Info.TextColor3 = Color3.fromRGB(155, 160, 180)
 Info.Font = Enum.Font.Gotham
-Info.TextSize = 12
+Info.TextSize = 11
+Info.TextWrapped = true
+Info.TextYAlignment = Enum.TextYAlignment.Top
 Info.Parent = Card
 
 local loaderChoice = nil
@@ -72,40 +67,67 @@ local function makeBtn(btnText, y, color, choice)
     b.MouseButton1Click:Connect(function()
         if loaderChoice ~= nil then return end
         loaderChoice = choice
-        Info.Text = choice == 1 and "Launching uplalan1 HUB..." or "Loading Kert1..."
+        Info.Text = "Downloading..."
     end)
 end
 
-makeBtn("1  |  Launch my uplalan1 HUB", 91, Color3.fromRGB(105, 75, 210), 1)
-makeBtn("2  |  Launch Kert1 script", 156, Color3.fromRGB(45, 125, 185), 2)
+makeBtn("1  |  Launch my uplalan1 HUB", 115, Color3.fromRGB(105, 75, 210), 1)
+makeBtn("2  |  Launch Kert1 script", 180, Color3.fromRGB(45, 125, 185), 2)
 
 repeat task.wait(0.05) until loaderChoice ~= nil
 
-local function loadScript(url)
-    local success, err = pcall(function()
-        local source = game:HttpGet(url)
-        if source and #source > 0 then
-            local func = loadstring(source)
-            if func then
-                func()
-            else
-                Info.Text = "Compilation error"
-            end
-        else
-            Info.Text = "Empty response"
-        end
-    end)
+local urlToLoad = (loaderChoice == 1) and MY_HUB_URL or KERT1_URL
+
+local function downloadScript(url)
+    local body = nil
     
-    if success then
-        ScreenGui:Destroy()
-    else
-        Info.Text = "Error: " .. tostring(err)
-        Info.TextColor3 = Color3.fromRGB(255, 100, 100)
+    if syn and syn.request then
+        local ok, res = pcall(function() return syn.request({Url = url, Method = "GET"}) end)
+        if ok and res and res.Body then body = res.Body end
     end
+    
+    if not body and http_request then
+        local ok, res = pcall(function() return http_request({Url = url, Method = "GET"}) end)
+        if ok and res and res.Body then body = res.Body end
+    end
+    
+    if not body and request then
+        local ok, res = pcall(function() return request({Url = url, Method = "GET"}) end)
+        if ok and res and res.Body then body = res.Body end
+    end
+    
+    if not body then
+        local ok, res = pcall(function() return game:HttpGet(url) end)
+        if ok and res then body = res end
+    end
+    
+    return body
 end
 
-if loaderChoice == 1 then
-    loadScript(MY_HUB_URL)
-elseif loaderChoice == 2 then
-    loadScript(KERT1_URL)
+Info.Text = "Downloading..."
+
+local source = downloadScript(urlToLoad)
+
+if not source or #source < 10 then
+    Info.Text = "ERROR: Failed to download. Check your executor."
+    Info.TextColor3 = Color3.fromRGB(255, 100, 100)
+    return
+end
+
+local compileSuccess, func = pcall(loadstring, source)
+
+if not compileSuccess or type(func) ~= "function" then
+    Info.Text = "ERROR: Syntax error in script!"
+    Info.TextColor3 = Color3.fromRGB(255, 100, 100)
+    return
+end
+
+local runSuccess, runError = pcall(func)
+
+if not runSuccess then
+    Info.Text = "RUN ERROR: " .. tostring(runError)
+    Info.TextColor3 = Color3.fromRGB(255, 100, 100)
+    return
+else
+    ScreenGui:Destroy()
 end
